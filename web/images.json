@@ -1,0 +1,21 @@
+[
+  {
+    "repo":"debian",
+    "tags":[
+      "latest"
+    ]
+  },
+  {
+    "repo":"alpine",
+    "tags":[
+      "edge",
+      "latest"
+    ]
+  },
+  {
+    "repo":"generic",
+    "tags":[
+      "latest"
+    ]
+  }
+]

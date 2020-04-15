@@ -1,0 +1,33 @@
+#!/bin/bash
+
+TOKEN_HEADER="INTERNAL_TOKEN: ${INTERNAL_TOKEN}"
+WGET_URL="https://${CONTROLLER_ADDRESS}/api/internal/getFile/${FILE_ID}"
+CURL_URL="https://${CONTROLLER_ADDRESS}/api/internal/uploadResult"
+
+export AUTORUN_BUILD="/BUILD"
+export AUTORUN_RESULT="/RESULT"
+
+mkdir ${AUTORUN_BUILD}
+
+wget --no-check-certificate --header "${TOKEN_HEADER}" "${WGET_URL}" &&
+  unzip -d "${AUTORUN_BUILD}" "${FILE_ID}" &&
+  find /BUILD/ -type f -name 'AUTORUN.sh' -exec /bin/bash {} \;
+
+EXIT_CODE=$?
+RESULT_ZIP="/${TASK_ID}:${FILE_ID}:RESULT.zip"
+
+if (zip -9 -r "${RESULT_ZIP}" "${AUTORUN_RESULT}"); then
+  while [ "$(curl -o -I -L -s -w "%{http_code}" \
+    -k -H "${TOKEN_HEADER}" \
+    -F "file=@/${RESULT_ZIP}" "${CURL_URL}")" \
+    -ne 200 ]; do
+    echo "$(date +"%Y-%m-%d %T") Fail to upload result archive to controller ... retry after 5 seconds ...)"
+    sleep 5s
+  done
+fi
+
+if [ ${EXIT_CODE} -lt 0 ]; then
+  EXIT_CODE=$((EXIT_CODE * -1))
+fi
+
+exit ${EXIT_CODE}

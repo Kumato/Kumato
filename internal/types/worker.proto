@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package types;
+
+import "common.proto";
+import "task.proto";
+
+service Worker {
+    rpc StopTask (Task) returns (Empty) {
+    }
+    rpc RunTask (Task) returns (Task) {
+    }
+    rpc GetImages (Empty) returns (Images) {
+    }
+    rpc GetStats (Empty) returns (Stats) {
+    }
+    rpc GetLoad (Empty) returns (Stats) {
+    }
+}
+
+message Images {
+    repeated ImageRepoTags image_repo_tags = 1;
+}
+
+message ImageRepoTags {
+    string repo = 1;
+    repeated string tags = 2;
+}
+
+message Stats {
+    string hostname = 1;
+    int64 memory_total = 2;
+    int64 memory_used = 3;
+    int64 nano_cpu_total = 4;
+    int64 nano_cpu_used = 5;
+    int64 gpu_total = 6;
+    int64 gpu_used = 7;
+    double cpu_usage = 8;
+}
